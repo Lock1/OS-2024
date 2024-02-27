@@ -1,3 +1,5 @@
+OBJECTS       = src/kernel.o src/gdt.o src/kernel-entrypoint.o
+
 # Compiler & linker
 ASM           = nasm
 LIN           = ld
@@ -26,11 +28,8 @@ clean:
 
 
 
-kernel:
-	@$(ASM) $(AFLAGS) $(SOURCE_FOLDER)/kernel-entrypoint.s -o $(OUTPUT_FOLDER)/kernel-entrypoint.o
-# TODO: Compile C file with CFLAGS
-	@$(CC) $(CFLAGS) $(SOURCE_FOLDER)/kernel.c -o $(OUTPUT_FOLDER)/kernel.o
-	@$(LIN) $(LFLAGS) bin/*.o -o $(OUTPUT_FOLDER)/kernel
+kernel: $(OBJECTS)
+	@$(LIN) $(LFLAGS) $(OBJECTS) -o $(OUTPUT_FOLDER)/kernel
 	@echo Linking object files and generate elf32...
 	@rm -f *.o
 
@@ -50,3 +49,13 @@ iso: kernel
 		-o $(OUTPUT_FOLDER)/OS2024.iso \
 		$(OUTPUT_FOLDER)/iso
 	@rm -r $(OUTPUT_FOLDER)/iso/
+
+%.o: %.c
+	@mkdir -p $(@D)
+	@$(CC) $(CFLAGS) $< -o $@
+	@echo Compiling $@...
+
+%.o: %.s
+	@mkdir -p $(@D)
+	@$(ASM) $(AFLAGS) $< -o $@
+	@echo Compiling $@...
