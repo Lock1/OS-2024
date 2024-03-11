@@ -1,5 +1,5 @@
 OBJECTS       = src/kernel.o src/gdt.o src/kernel-entrypoint.o src/framebuffer.o \
-				src/cpu/portio.o
+				src/cpu/portio.o src/cpu/interrupt.o src/cpu/intsetup.o src/cpu/idt.o
 
 # Compiler & linker
 ASM           = nasm
