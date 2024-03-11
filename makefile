@@ -1,4 +1,5 @@
-OBJECTS       = src/kernel.o src/gdt.o src/kernel-entrypoint.o
+OBJECTS       = src/kernel.o src/gdt.o src/kernel-entrypoint.o src/framebuffer.o \
+				src/cpu/portio.o
 
 # Compiler & linker
 ASM           = nasm
