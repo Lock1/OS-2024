@@ -5,7 +5,8 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-/** out:
+/** 
+ *  out:
  *  Sends the given data to the given I/O port
  *
  *  @param port The I/O port to send the data to
@@ -13,12 +14,27 @@
  */
 void out(uint16_t port, uint8_t data);
 
-/** in:
+/** 
+ *  in:
  *  Read data from the given I/O port
  *
  *  @param port The I/O port to request the data
  *  @return Recieved data from the corresponding I/O port
  */
 uint8_t in(uint16_t port);
+
+/** 
+ *  out16:
+ *  @param port The I/O port to send the data to
+ *  @param data The data to send to the I/O port
+ */
+void out16(uint16_t port, uint16_t data);
+
+/** 
+ *  in16:
+ *  @param port The I/O port to request the data
+ *  @return Recieved data from the corresponding I/O port
+ */
+uint16_t in16(uint16_t port);
 
 #endif

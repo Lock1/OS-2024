@@ -1,3 +1,16 @@
 {
     "debug.onTaskErrors": "debugAnyway",
+    "files.associations": {
+        "*.c": "c",
+        "*.h": "c",
+        "*.s": "nasm",
+    },
+    "workbench.editorAssociations": {
+        "*.bin" : "hexEditor.hexedit",
+        "*.o"   : "hexEditor.hexedit", 
+    },
+    "C_Cpp.default.includePath": [
+        "${workspaceFolder}/**",
+        "${workspaceFolder}/src",
+    ],
 }

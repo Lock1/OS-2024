@@ -6,12 +6,14 @@
 #include "header/kernel-entrypoint.h"
 #include "header/driver/keyboard.h"
 #include "header/text/framebuffer.h"
+#include "header/filesystem/fat32.h"
 
 void kernel_setup(void) {
     load_gdt(&_gdt_gdtr);
     pic_remap();
     initialize_idt();
     activate_keyboard_interrupt();
+    initialize_filesystem_fat32();
     framebuffer_clear();
     framebuffer_set_cursor(0, 0);
 
@@ -35,8 +37,6 @@ void kernel_setup(void) {
     while (true);
 }
 
-// TODO: Quick Keyboard
-// TODO: FAT32
 // TODO: Paging
 // TODO: U/K space
 // TODO: Shell

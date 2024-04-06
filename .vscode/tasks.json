@@ -5,9 +5,7 @@
             "type": "cppbuild",
             "label": "Build OS",
             "command": "make",
-            "args": [
-                "build",
-            ],
+            "args": ["build"],
             "options": {
                 "cwd": "${workspaceFolder}"
             },
@@ -19,12 +17,10 @@
         {
             "type": "shell",
             "label": "Launch QEMU",
-            "command": "echo Starting QEMU&qemu-system-i386 -s -S -cdrom OS2024.iso",
+            "command": "echo Starting QEMU&make run",
             "isBackground": true,
             "dependsOn": "Build OS",
-            "options": {
-                "cwd": "${workspaceFolder}/bin"
-            },
+            "options": { "cwd": "${workspaceFolder}" },
             "problemMatcher": {
                 "pattern": [
                     {
