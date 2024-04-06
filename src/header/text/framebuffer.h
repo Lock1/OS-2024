@@ -11,6 +11,9 @@
 #define CURSOR_PORT_CMD_UPPER_BYTE 14
 #define CURSOR_PORT_CMD_LOWER_BYTE 15
 
+#define FRAMEBUFFER_WIDTH  80
+#define FRAMEBUFFER_HEIGHT 25
+
 /**
  * Struct for text framebuffer mode 3h.
  * Sacrifice speed and bitwise operation 
@@ -19,8 +22,8 @@
 struct TextFramebufferCell {
     uint8_t character;
     struct {
-        uint8_t fg : 4;
-        uint8_t bg : 4;
+        uint8_t fg: 4;
+        uint8_t bg: 4;
     } __attribute__((packed)) color;
 };
 
