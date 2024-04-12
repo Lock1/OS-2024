@@ -55,6 +55,13 @@ struct TextFramebufferCell {
 void framebuffer_write(uint8_t row, uint8_t col, char c, uint8_t fg, uint8_t bg);
 
 /**
+ * Get cursor location. Divide with 80 for row and use modulo for column
+ * 
+ * @return uint16_t, position = y*80 + x
+*/
+uint16_t framebuffer_get_cursor(void);
+
+/**
  * Set cursor to specified location. Row and column starts from 0
  * 
  * @param r row

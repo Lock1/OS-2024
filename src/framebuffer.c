@@ -5,6 +5,15 @@
 #include "header/stdlib/string.h"
 #include "header/cpu/portio.h"
 
+uint16_t framebuffer_get_cursor(void) {
+    uint16_t position = 0;
+    out(CURSOR_PORT_CMD, CURSOR_PORT_CMD_LOWER_BYTE);
+    position |= in(CURSOR_PORT_DATA);
+    out(CURSOR_PORT_CMD, CURSOR_PORT_CMD_UPPER_BYTE);
+    position |= ((uint16_t) in(CURSOR_PORT_DATA)) << 8;
+    return position;
+}
+
 void framebuffer_set_cursor(uint8_t r, uint8_t c) {
     uint16_t location = r * 0x50 + c;
     out(CURSOR_PORT_CMD, CURSOR_PORT_CMD_UPPER_BYTE);

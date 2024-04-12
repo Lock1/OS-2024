@@ -169,4 +169,11 @@ void main_interrupt_handler(struct InterruptFrame frame);
 // Set kernel stack in TSS
 void set_tss_kernel_current_stack(void);
 
+/**
+ * Kernel syscall for user mode. This reference guide will use INT $0x30 as syscall
+ *
+ * @param frame Information about interrupt
+ */
+void syscall(struct InterruptFrame frame);
+
 #endif

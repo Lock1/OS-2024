@@ -1,6 +1,7 @@
 OBJECTS       = src/kernel.o src/gdt.o src/kernel-entrypoint.o src/framebuffer.o \
 				src/cpu/portio.o src/cpu/interrupt.o src/cpu/intsetup.o src/cpu/idt.o \
-				src/keyboard.o src/disk.o src/fat32.o src/stdlib/string.o src/paging.o
+				src/keyboard.o src/disk.o src/fat32.o src/stdlib/string.o src/paging.o \
+				src/textio.o
 
 # Compiler & linker
 ASM           = nasm
@@ -49,6 +50,9 @@ user-shell:
 	@$(CC)  $(CFLAGS) -fno-pie $(SOURCE_FOLDER)/external/user-program/user-shell.c -o user-shell.o
 	@$(LIN) -T $(SOURCE_FOLDER)/external/user-linker.ld -melf_i386 --oformat=binary \
 		crt0.o user-shell.o -o $(OUTPUT_FOLDER)/shell
+	@$(LIN) -T $(SOURCE_FOLDER)/external/user-linker.ld -melf_i386 --oformat=elf32-i386 \
+		crt0.o user-shell.o -o $(OUTPUT_FOLDER)/shell_elf
+	@echo Linking object shell object files and generate ELF32 for debugging...
 	@echo Linking object shell object files and generate flat binary...
 	@size --target=binary $(OUTPUT_FOLDER)/shell
 	@rm -f *.o
