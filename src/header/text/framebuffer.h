@@ -30,7 +30,7 @@ struct TextFramebufferCell {
 // TODO: Even more fancy C constant + linkerscript symbol alignment
 // Various framebuffer constant
 // Fancy struct with crappy C array-pointer casting
-#define FRAMEBUFFER_MEMORY_OFFSET  ((struct TextFramebufferCell(*)[80]) 0xB8000)
+#define FRAMEBUFFER_MEMORY_OFFSET  ((struct TextFramebufferCell(*)[80]) 0xC00B8000)
 #define FRAMEBUFFER_CLEAR_COLOR_FG 0x07
 #define FRAMEBUFFER_CLEAR_COLOR_BG 0x00
 

@@ -1,6 +1,6 @@
 OBJECTS       = src/kernel.o src/gdt.o src/kernel-entrypoint.o src/framebuffer.o \
 				src/cpu/portio.o src/cpu/interrupt.o src/cpu/intsetup.o src/cpu/idt.o \
-				src/keyboard.o src/disk.o src/fat32.o src/stdlib/string.o
+				src/keyboard.o src/disk.o src/fat32.o src/stdlib/string.o src/paging.o
 
 # Compiler & linker
 ASM           = nasm
@@ -27,7 +27,7 @@ run: all
 all: build
 build: iso
 clean:
-	rm -rf *.o $(OUTPUT_FOLDER)/*.iso $(OUTPUT_FOLDER)/kernel $(OUTPUT_FOLDER)/*.o
+	rm -rf *.o $(OUTPUT_FOLDER)/*.iso $(OUTPUT_FOLDER)/kernel ./**/*.o
 
 disk:
 	@qemu-img create -f raw $(OUTPUT_FOLDER)/$(DISK_NAME).bin 4M

@@ -37,7 +37,6 @@ void kernel_setup(void) {
     while (true);
 }
 
-// TODO: Paging
 // TODO: U/K space
 // TODO: Shell
 

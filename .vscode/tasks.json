@@ -6,13 +6,11 @@
             "label": "Build OS",
             "command": "make",
             "args": ["build"],
-            "options": {
-                "cwd": "${workspaceFolder}"
-            },
+            "options": { "cwd": "${workspaceFolder}" },
             "group": {
                 "kind": "build",
-                "isDefault": true
-            }
+                "isDefault": true,
+            },
         },
         {
             "type": "shell",
