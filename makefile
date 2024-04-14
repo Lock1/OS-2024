@@ -1,7 +1,7 @@
 OBJECTS       = src/kernel.o src/gdt.o src/kernel-entrypoint.o src/framebuffer.o \
 				src/cpu/portio.o src/cpu/interrupt.o src/cpu/intsetup.o src/cpu/idt.o \
 				src/keyboard.o src/disk.o src/fat32.o src/stdlib/string.o src/paging.o \
-				src/textio.o
+				src/textio.o src/process.o
 
 # Compiler & linker
 ASM           = nasm

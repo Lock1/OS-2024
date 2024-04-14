@@ -39,7 +39,3 @@ void kernel_setup(void) {
 
     while (true);
 }
-
-// TODO: Shell
-
-// TODO: Context

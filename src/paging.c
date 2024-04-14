@@ -97,3 +97,65 @@ bool paging_free_user_page_frame(struct PageDirectory *page_dir, void *virtual_a
     return true;
 }
 
+#include "header/process/process.h"
+#include "header/kernel-entrypoint.h"
+#define PAGING_PROCESS_DIRECTORY_TABLE_MAX_COUNT 32
+
+__attribute__((aligned(0x1000))) static struct PageDirectory page_directory_list[PAGING_PROCESS_DIRECTORY_TABLE_MAX_COUNT];
+static struct {
+    bool page_directory_used[PAGING_PROCESS_DIRECTORY_TABLE_MAX_COUNT];
+} page_directory_manager = {
+    .page_directory_used = {false},
+};
+
+struct PageDirectory* paging_create_new_page_directory(void) {
+    for (uint32_t i = 0; i < PAGING_PROCESS_DIRECTORY_TABLE_MAX_COUNT; ++i) {
+        if (!page_directory_manager.page_directory_used[i]) {
+            page_directory_manager.page_directory_used[i] = true;
+            return &page_directory_list[i];
+        }
+    }
+    return NULL;
+}
+
+struct PageDirectory* paging_get_current_page_directory_addr(void) {
+    struct PageDirectory* current_page_directory_addr;
+    __asm__ volatile("mov %%cr3, %%eax" : "=r"(current_page_directory_addr):);
+    return current_page_directory_addr;
+}
+
+bool paging_allocate_kernel_page_frame(struct PageDirectory *page_dir, void *virtual_addr) {
+    if (!paging_allocate_check(1))
+        return false;
+    
+    for (int i = 0; i < PAGE_FRAME_MAX_COUNT; ++i) {
+        if (!page_manager_state.page_frame_map[i]) {
+            page_manager_state.page_frame_map[i] = true;
+            page_manager_state.free_page_frame_count--;
+            struct PageDirectoryEntryFlag flag = {
+                .present_bit       = true,
+                .write_bit         = true,
+                .user_bit          = false,
+                .use_pagesize_4_mb = true,
+            };
+            update_page_directory_entry(
+                page_dir,
+                (void*) (i * PAGE_FRAME_SIZE),
+                virtual_addr,
+                flag
+            );
+            return true;
+        }
+    }
+
+    return false;
+}
+
+void paging_use_page_directory(struct PageDirectory *page_dir) {
+    __asm__  volatile("mov %0, %%cr3" : /* <Empty> */ : "r"(page_dir): "memory");
+    for (uint32_t i = 0; i < PROCESS_PAGE_FRAME_COUNT_MAX; ++i) {
+        void *target_virtual_addr = (void*) (i*PAGE_FRAME_SIZE);
+        flush_single_tlb(target_virtual_addr);
+        flush_single_tlb((void*) ((uint32_t) target_virtual_addr + _linker_kernel_virtual_base));
+    }
+}

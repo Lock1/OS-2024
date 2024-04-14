@@ -117,4 +117,15 @@ bool paging_allocate_user_page_frame(struct PageDirectory *page_dir, void *virtu
  */
 bool paging_free_user_page_frame(struct PageDirectory *page_dir, void *virtual_addr);
 
+
+
+
+
+/* --- Process-related Memory Management --- */
+struct PageDirectory* paging_create_new_page_directory(void);
+struct PageDirectory* paging_get_current_page_directory_addr(void);
+bool paging_allocate_kernel_page_frame(struct PageDirectory *page_dir, void *virtual_addr);
+void paging_use_page_directory(struct PageDirectory *page_dir);
+
+
 #endif
