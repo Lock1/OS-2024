@@ -25,16 +25,17 @@
  */
 struct Context {
     struct CPURegister   cpu;
-    uint32_t             cs;
     uint32_t             eip;
+    uint32_t             eflags;
     struct PageDirectory *page_directory_addr;
-    void                 *kernel_esp;
 };
 
 struct ProcessControlBlock {
-    uint32_t pid;
-    char     name[PROCESS_NAME_LENGTH_MAX];
-    uint32_t state;
+    struct {
+        uint32_t pid;
+        char     name[PROCESS_NAME_LENGTH_MAX];
+        uint32_t state;
+    } metadata;
 
     struct Context context;
     struct {

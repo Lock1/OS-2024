@@ -123,8 +123,18 @@ bool paging_free_user_page_frame(struct PageDirectory *page_dir, void *virtual_a
 
 /* --- Process-related Memory Management --- */
 struct PageDirectory* paging_create_new_page_directory(void);
+
+/**
+ * Rationale: Virtual address usage in function signature
+ * As the reader shouldn't touch asm as much as possible, this will require virtual address
+ * in order to allow the reader to manipulate them in C. Physical address will confuse them 
+ * as the debugger and C code will show "seemingly correct" values yet yield an error.
+ */ 
+
+// Warning: Will return virtual address of current page directory. Assuming page dir lives in kernel memory
 struct PageDirectory* paging_get_current_page_directory_addr(void);
-bool paging_allocate_kernel_page_frame(struct PageDirectory *page_dir, void *virtual_addr);
+
+// Warning: This will assume page_dir is a virtual address & the struct live in kernel memory
 void paging_use_page_directory(struct PageDirectory *page_dir);
 
 

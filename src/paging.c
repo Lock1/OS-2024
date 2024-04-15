@@ -101,7 +101,7 @@ bool paging_free_user_page_frame(struct PageDirectory *page_dir, void *virtual_a
 #include "header/kernel-entrypoint.h"
 #define PAGING_PROCESS_DIRECTORY_TABLE_MAX_COUNT 32
 
-__attribute__((aligned(0x1000))) static struct PageDirectory page_directory_list[PAGING_PROCESS_DIRECTORY_TABLE_MAX_COUNT];
+__attribute__((aligned(0x1000))) static struct PageDirectory page_directory_list[PAGING_PROCESS_DIRECTORY_TABLE_MAX_COUNT] = {0};
 static struct {
     bool page_directory_used[PAGING_PROCESS_DIRECTORY_TABLE_MAX_COUNT];
 } page_directory_manager = {
@@ -112,6 +112,13 @@ struct PageDirectory* paging_create_new_page_directory(void) {
     for (uint32_t i = 0; i < PAGING_PROCESS_DIRECTORY_TABLE_MAX_COUNT; ++i) {
         if (!page_directory_manager.page_directory_used[i]) {
             page_directory_manager.page_directory_used[i] = true;
+            struct PageDirectoryEntry kernel_entry = {
+                .flag.present_bit       = 1,
+                .flag.write_bit         = 1,
+                .flag.use_pagesize_4_mb = 1,
+                .lower_address          = 0,
+            };
+            page_directory_list[i].table[0x300] = kernel_entry;
             return &page_directory_list[i];
         }
     }
@@ -119,40 +126,21 @@ struct PageDirectory* paging_create_new_page_directory(void) {
 }
 
 struct PageDirectory* paging_get_current_page_directory_addr(void) {
-    struct PageDirectory* current_page_directory_addr;
-    __asm__ volatile("mov %%cr3, %%eax" : "=r"(current_page_directory_addr):);
-    return current_page_directory_addr;
+    uint32_t current_page_directory_phys_addr;
+    __asm__ volatile("mov %%cr3, %0" : "=r"(current_page_directory_phys_addr): /* <Empty> */);
+    uint32_t virtual_addr_page_dir = current_page_directory_phys_addr + (uint32_t) &_linker_kernel_virtual_base;
+    return (struct PageDirectory*) virtual_addr_page_dir;
 }
 
-bool paging_allocate_kernel_page_frame(struct PageDirectory *page_dir, void *virtual_addr) {
-    if (!paging_allocate_check(1))
-        return false;
-    
-    for (int i = 0; i < PAGE_FRAME_MAX_COUNT; ++i) {
-        if (!page_manager_state.page_frame_map[i]) {
-            page_manager_state.page_frame_map[i] = true;
-            page_manager_state.free_page_frame_count--;
-            struct PageDirectoryEntryFlag flag = {
-                .present_bit       = true,
-                .write_bit         = true,
-                .user_bit          = false,
-                .use_pagesize_4_mb = true,
-            };
-            update_page_directory_entry(
-                page_dir,
-                (void*) (i * PAGE_FRAME_SIZE),
-                virtual_addr,
-                flag
-            );
-            return true;
-        }
-    }
-
-    return false;
-}
 
 void paging_use_page_directory(struct PageDirectory *page_dir) {
-    __asm__  volatile("mov %0, %%cr3" : /* <Empty> */ : "r"(page_dir): "memory");
+    uint32_t physical_addr_page_dir = (uint32_t) page_dir;
+    // Additional layer of check & mistake safety net
+    if ((uint32_t) page_dir > (uint32_t) &_linker_kernel_virtual_base)
+        physical_addr_page_dir -= (uint32_t) &_linker_kernel_virtual_base;
+
+    __asm__  volatile("mov %0, %%cr3" : /* <Empty> */ : "r"(physical_addr_page_dir): "memory");
+    __attribute__((unused)) volatile int k = 0x1337;
     for (uint32_t i = 0; i < PROCESS_PAGE_FRAME_COUNT_MAX; ++i) {
         void *target_virtual_addr = (void*) (i*PAGE_FRAME_SIZE);
         flush_single_tlb(target_virtual_addr);

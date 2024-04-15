@@ -8,6 +8,7 @@
 #include "header/text/framebuffer.h"
 #include "header/filesystem/fat32.h"
 #include "header/memory/paging.h"
+#include "header/process/process.h"
 
 void kernel_setup(void) {
     load_gdt(&_gdt_gdtr);
@@ -35,6 +36,7 @@ void kernel_setup(void) {
 
     // Set TSS $esp pointer and jump into shell 
     set_tss_kernel_current_stack();
+    process_create_user_process(request);
     kernel_execute_user_program((uint8_t*) 0);
 
     while (true);
