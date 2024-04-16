@@ -94,7 +94,7 @@ kernel_execute_user_program:
     
     ; Using iret (return instruction for interrupt) technique for privilege change
     ; Stack values will be loaded into these register:
-    ; [esp] -> eip, [esp+4] -> cs, [esp+8] -> eflags, [] -> user esp, [] -> user ss
+    ; [esp] -> eip, [esp+4] -> cs, [esp+8] -> eflags, [...] -> user esp, [...] -> user ss
     mov  ecx, [esp+4] ; Save first (before pushing anything to stack) for last push
     push eax ; Stack segment selector (GDT_USER_DATA_SELECTOR), user privilege
     mov  eax, ecx

@@ -134,8 +134,8 @@ struct PageDirectory* paging_create_new_page_directory(void);
 // Warning: Will return virtual address of current page directory. Assuming page dir lives in kernel memory
 struct PageDirectory* paging_get_current_page_directory_addr(void);
 
-// Warning: This will assume page_dir is a virtual address & the struct live in kernel memory
-void paging_use_page_directory(struct PageDirectory *page_dir);
+// Warning: This will assume page_dir_virtual_addr is a virtual address & the struct live in kernel memory
+void paging_use_page_directory(struct PageDirectory *page_dir_virtual_addr);
 
 
 #endif

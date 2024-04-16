@@ -132,11 +132,10 @@ struct PageDirectory* paging_get_current_page_directory_addr(void) {
     return (struct PageDirectory*) virtual_addr_page_dir;
 }
 
-
-void paging_use_page_directory(struct PageDirectory *page_dir) {
-    uint32_t physical_addr_page_dir = (uint32_t) page_dir;
+void paging_use_page_directory(struct PageDirectory *page_dir_virtual_addr) {
+    uint32_t physical_addr_page_dir = (uint32_t) page_dir_virtual_addr;
     // Additional layer of check & mistake safety net
-    if ((uint32_t) page_dir > (uint32_t) &_linker_kernel_virtual_base)
+    if ((uint32_t) page_dir_virtual_addr > (uint32_t) &_linker_kernel_virtual_base)
         physical_addr_page_dir -= (uint32_t) &_linker_kernel_virtual_base;
 
     __asm__  volatile("mov %0, %%cr3" : /* <Empty> */ : "r"(physical_addr_page_dir): "memory");

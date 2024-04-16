@@ -9,7 +9,7 @@ static struct {
     uint32_t                   active_process_count;
     uint32_t                   available_pid;
 } process_manager_state = {
-    .process_list         = {[0 ... PROCESS_COUNT_MAX-1] = { .metadata.state = PROCESS_STATE_INACTIVE }},
+    .process_list         = {[0 ... PROCESS_COUNT_MAX-1] = { .metadata.state = PROCESS_TERMINATED }},
     .active_process_count = 0,
     .available_pid        = 0,
 };
@@ -27,7 +27,7 @@ static int32_t process_list_get_inactive_index() {
     if (process_manager_state.active_process_count >= PROCESS_COUNT_MAX)
         return -1;
     for (int32_t i = 0; i < PROCESS_COUNT_MAX; ++i)
-        if (process_manager_state.process_list[i].metadata.state == PROCESS_STATE_INACTIVE)
+        if (process_manager_state.process_list[i].metadata.state == PROCESS_TERMINATED)
             return i;
     return -1;
 }
@@ -38,7 +38,6 @@ static int32_t process_list_get_inactive_index() {
 
 
 int32_t process_create_user_process(struct FAT32DriverRequest request) {
-    __asm__ volatile("cli");
     int32_t retcode = 0; 
     if (process_manager_state.active_process_count >= PROCESS_COUNT_MAX) {
         retcode = 1;
@@ -63,12 +62,12 @@ int32_t process_create_user_process(struct FAT32DriverRequest request) {
     struct ProcessControlBlock *new_pcb = &(process_manager_state.process_list[p_index]);
     new_pcb->metadata.pid = process_generate_new_pid();
     memcpy(new_pcb->metadata.name, request.name, 8);
-    new_pcb->metadata.state = PROCESS_STATE_ACTIVE;
+    new_pcb->metadata.state = PROCESS_WAITING;
 
     // Create new page directory for the process. Allocate frame needed for exec + stack
     struct PageDirectory *new_page_dir = paging_create_new_page_directory();
     void                 *top_user_esp = (void*) ((uint32_t) &_linker_kernel_virtual_base - sizeof(int));
-    new_pcb->context.page_directory_addr  = new_page_dir;
+    new_pcb->context.page_directory_virtual_addr  = new_page_dir;
     new_pcb->memory.page_frame_used_count = page_frame_count_needed;
     for (uint32_t i = 0; i < page_frame_count_needed - 1; ++i) {
         void *virtual_addr = (void *) ((uint32_t) request.buf + i * PAGE_FRAME_SIZE);
@@ -101,7 +100,7 @@ int32_t process_create_user_process(struct FAT32DriverRequest request) {
             }
         },
         .eip                 = (uint32_t) request.buf,
-        .page_directory_addr = new_page_dir,
+        .page_directory_virtual_addr = new_page_dir,
     };
     new_pcb->context = new_context;
 
@@ -109,6 +108,5 @@ int32_t process_create_user_process(struct FAT32DriverRequest request) {
     process_manager_state.active_process_count++;
 
 exit_cleanup:
-    __asm__ volatile("sti");
     return retcode;
 }
