@@ -56,6 +56,11 @@ void activate_keyboard_interrupt(void) {
     out(PIC1_DATA, in(PIC1_DATA) & ~(1 << IRQ_KEYBOARD));
 }
 
+void activate_timer_interrupt(void) {
+    out(PIC1_DATA, in(PIC1_DATA) & ~(1 << IRQ_TIMER));
+    // TODO: Rather actually trigger IF, just setup the parameter and trigger it on
+}
+
 
 void main_interrupt_handler(struct InterruptFrame frame) {
     switch (frame.int_number) {

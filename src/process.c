@@ -4,12 +4,14 @@
 #include "header/cpu/gdt.h"
 #include "header/kernel-entrypoint.h"
 
+struct ProcessControlBlock _process_list[PROCESS_COUNT_MAX] = {
+    [0 ... PROCESS_COUNT_MAX-1] = { .metadata.state = PROCESS_TERMINATED }
+};
+
 static struct {
-    struct ProcessControlBlock process_list[PROCESS_COUNT_MAX];
-    uint32_t                   active_process_count;
-    uint32_t                   available_pid;
+    uint32_t active_process_count;
+    uint32_t available_pid;
 } process_manager_state = {
-    .process_list         = {[0 ... PROCESS_COUNT_MAX-1] = { .metadata.state = PROCESS_TERMINATED }},
     .active_process_count = 0,
     .available_pid        = 0,
 };
@@ -27,7 +29,7 @@ static int32_t process_list_get_inactive_index() {
     if (process_manager_state.active_process_count >= PROCESS_COUNT_MAX)
         return -1;
     for (int32_t i = 0; i < PROCESS_COUNT_MAX; ++i)
-        if (process_manager_state.process_list[i].metadata.state == PROCESS_TERMINATED)
+        if (_process_list[i].metadata.state == PROCESS_TERMINATED)
             return i;
     return -1;
 }
@@ -59,7 +61,7 @@ int32_t process_create_user_process(struct FAT32DriverRequest request) {
 
     // Process metadata
     int32_t p_index = process_list_get_inactive_index();
-    struct ProcessControlBlock *new_pcb = &(process_manager_state.process_list[p_index]);
+    struct ProcessControlBlock *new_pcb = &(_process_list[p_index]);
     new_pcb->metadata.pid = process_generate_new_pid();
     memcpy(new_pcb->metadata.name, request.name, 8);
     new_pcb->metadata.state = PROCESS_WAITING;
@@ -87,19 +89,29 @@ int32_t process_create_user_process(struct FAT32DriverRequest request) {
     const uint32_t segment_data_register_value = GDT_USER_DATA_SEGMENT_SELECTOR | 0x3;
     struct Context new_context = {
         .cpu = {
-            .general = {0},
-            .index   = {0},
+            .general = {
+                .eax = 1,
+                .ebx = 2,
+                .ecx = 3,
+                .edx = 4,
+            },
+            .index   = {
+                .edi = 5,
+                .esi = 6,
+            },
+            .stack = {
+                .esp = (uint32_t) top_user_esp,
+                .ebp = (uint32_t) top_user_esp,
+            },
             .segment = {
                 .ds = segment_data_register_value,
                 .es = segment_data_register_value,
                 .fs = segment_data_register_value,
                 .gs = segment_data_register_value,
-            },
-            .stack = {
-                .esp = (uint32_t) top_user_esp,
             }
         },
-        .eip                 = (uint32_t) request.buf,
+        .eip                         = (uint32_t) request.buf,
+        .eflags = 7, // TODO : important flags
         .page_directory_virtual_addr = new_page_dir,
     };
     new_pcb->context = new_context;

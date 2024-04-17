@@ -15,6 +15,10 @@
 #define KERNEL_RESERVED_PAGE_FRAME_COUNT 4
 #define KERNEL_VIRTUAL_ADDRESS_BASE      0xC0000000
 
+
+
+
+
 typedef enum PROCESS_STATE {
     PROCESS_TERMINATED = 0,
     PROCESS_RUNNNING   = 1,
@@ -46,6 +50,8 @@ struct ProcessControlBlock {
         uint32_t page_frame_used_count;
     } memory;
 };
+
+extern struct ProcessControlBlock _process_list[PROCESS_COUNT_MAX];
 
 // Warning: This procedure assumes no reentrancy & any interrupt
 int32_t process_create_user_process(struct FAT32DriverRequest request);
