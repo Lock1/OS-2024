@@ -90,14 +90,14 @@ int32_t process_create_user_process(struct FAT32DriverRequest request) {
     struct Context new_context = {
         .cpu = {
             .general = {
-                .eax = 1,
-                .ebx = 2,
-                .ecx = 3,
-                .edx = 4,
+                .eax = 0,
+                .ebx = 0,
+                .ecx = 0,
+                .edx = 0,
             },
             .index   = {
-                .edi = 5,
-                .esi = 6,
+                .edi = 0,
+                .esi = 0,
             },
             .stack = {
                 .esp = (uint32_t) top_user_esp,
@@ -111,7 +111,7 @@ int32_t process_create_user_process(struct FAT32DriverRequest request) {
             }
         },
         .eip                         = (uint32_t) request.buf,
-        .eflags = 7, // TODO : important flags
+        .eflags                      = CPU_EFLAGS_BASE_FLAG | CPU_EFLAGS_FLAG_INTERRUPT_ENABLE,
         .page_directory_virtual_addr = new_page_dir,
     };
     new_pcb->context = new_context;
