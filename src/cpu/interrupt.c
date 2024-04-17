@@ -6,6 +6,8 @@
 #include "header/filesystem/fat32.h"
 #include "header/text/textio.h"
 #include "header/process/scheduler.h"
+#include "header/memory/paging.h"
+#include "header/kernel-entrypoint.h"
 
 struct TSSEntry _interrupt_tss_entry = {
     .ss0  = GDT_KERNEL_DATA_SEGMENT_SELECTOR,
@@ -84,11 +86,22 @@ void activate_timer_interrupt(void) {
 
 void main_interrupt_handler(struct InterruptFrame frame) {
     switch (frame.int_number) {
-        case PIC1_OFFSET + IRQ_TIMER:
-            // TODO: Setup the state & call scheduler
-            pic_ack(IRQ_TIMER);
-            // scheduler_switch_to_next_process();
+        case PIC1_OFFSET + IRQ_TIMER: {
+            if (frame.int_stack.eip >= (uint32_t) &_linker_kernel_virtual_base) {
+                pic_ack(IRQ_TIMER);
+                return;
+            }
+            struct Context ctx = {
+                .cpu                         = frame.cpu,
+                .eflags                      = frame.int_stack.eflags,
+                .eip                         = frame.int_stack.eip,
+                .page_directory_virtual_addr = paging_get_current_page_directory_addr(),
+            };
+            scheduler_save_context_to_current_pcb(ctx);
+            scheduler_switch_to_next_process();
             break;
+        }
+            
         case PIC1_OFFSET + IRQ_KEYBOARD:
             keyboard_isr();
             break;
