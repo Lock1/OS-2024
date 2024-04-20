@@ -27,10 +27,12 @@ process_context_switch:
     mov  edi, [ecx+0]
     mov  esi, [ecx+4]
 
+    ; For esp, check iret stack
     mov  ebp, [ecx+12]
-    
+
     mov  ebx, [ecx+16]
     mov  edx, [ecx+20]
+    ; Deferred: eax & ecx
 
     mov  eax, [ecx+32]
     mov  gs, ax

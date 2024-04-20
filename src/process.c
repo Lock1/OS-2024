@@ -87,7 +87,7 @@ int32_t process_create_user_process(struct FAT32DriverRequest request) {
 
     // Context creation
     const uint32_t segment_data_register_value = GDT_USER_DATA_SEGMENT_SELECTOR | 0x3;
-    struct Context new_context = {
+    struct Context initial_context = {
         .cpu = {
             .general = {
                 .eax = 0,
@@ -114,7 +114,7 @@ int32_t process_create_user_process(struct FAT32DriverRequest request) {
         .eflags                      = CPU_EFLAGS_BASE_FLAG | CPU_EFLAGS_FLAG_INTERRUPT_ENABLE,
         .page_directory_virtual_addr = new_page_dir,
     };
-    new_pcb->context = new_context;
+    new_pcb->context = initial_context;
 
     // Process creation success
     process_manager_state.active_process_count++;

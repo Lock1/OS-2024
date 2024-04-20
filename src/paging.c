@@ -143,6 +143,7 @@ void paging_use_page_directory(struct PageDirectory *page_dir_virtual_addr) {
     for (uint32_t i = 0; i < PROCESS_PAGE_FRAME_COUNT_MAX; ++i) {
         void *target_virtual_addr = (void*) (i*PAGE_FRAME_SIZE);
         flush_single_tlb(target_virtual_addr);
-        flush_single_tlb((void*) ((uint32_t) target_virtual_addr + _linker_kernel_virtual_base));
+        flush_single_tlb((void*) ((uint32_t) &_linker_kernel_virtual_base - (uint32_t) target_virtual_addr));
+        flush_single_tlb((void*) ((uint32_t) &_linker_kernel_virtual_base - (uint32_t) target_virtual_addr));
     }
 }
