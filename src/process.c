@@ -5,7 +5,7 @@
 #include "header/kernel-entrypoint.h"
 
 struct ProcessControlBlock _process_list[PROCESS_COUNT_MAX] = {
-    [0 ... PROCESS_COUNT_MAX-1] = { .metadata.state = PROCESS_TERMINATED }
+    [0 ... PROCESS_COUNT_MAX-1] = { .metadata.state = PROCESS_STOPPED }
 };
 
 static struct {
@@ -29,7 +29,7 @@ static int32_t process_list_get_inactive_index() {
     if (process_manager_state.active_process_count >= PROCESS_COUNT_MAX)
         return -1;
     for (int32_t i = 0; i < PROCESS_COUNT_MAX; ++i)
-        if (_process_list[i].metadata.state == PROCESS_TERMINATED)
+        if (_process_list[i].metadata.state == PROCESS_STOPPED)
             return i;
     return -1;
 }
