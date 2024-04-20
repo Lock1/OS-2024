@@ -73,6 +73,7 @@ void activate_keyboard_interrupt(void) {
 #define PIT_CHANNEL_0_DATA_PIO 0x40
 
 void activate_timer_interrupt(void) {
+    __asm__ volatile("cli");
     // Setup how often PIT fire
     uint32_t pit_timer_counter_to_fire = PIT_TIMER_COUNTER;
     out(PIT_COMMAND_REGISTER_PIO, PIT_COMMAND_VALUE);
@@ -101,7 +102,6 @@ void main_interrupt_handler(struct InterruptFrame frame) {
             scheduler_switch_to_next_process();
             break;
         }
-            
         case PIC1_OFFSET + IRQ_KEYBOARD:
             keyboard_isr();
             break;
