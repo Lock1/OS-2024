@@ -26,8 +26,8 @@ void init_clock(void) {
 int main(void) {
     init_clock();
 
-    char buf;
     syscall(7, 0, 0, 0);
+    char buf;
     while (true) {
         syscall(4, (uint32_t) &buf, 0, 0);
         if (buf) syscall(5, (uint32_t) &buf, 0xF, 0);
