@@ -8,6 +8,7 @@
 #include "header/process/scheduler.h"
 #include "header/memory/paging.h"
 #include "header/kernel-entrypoint.h"
+#include "header/driver/cmos.h"
 
 struct TSSEntry _interrupt_tss_entry = {
     .ss0  = GDT_KERNEL_DATA_SEGMENT_SELECTOR,
@@ -88,6 +89,7 @@ void activate_timer_interrupt(void) {
 void main_interrupt_handler(struct InterruptFrame frame) {
     switch (frame.int_number) {
         case PIC1_OFFSET + IRQ_TIMER: {
+            cmos_fetch_update();
             if (frame.int_stack.eip >= (uint32_t) &_linker_kernel_virtual_base) {
                 pic_ack(IRQ_TIMER);
                 return;
@@ -161,6 +163,10 @@ void syscall(struct InterruptFrame frame) {
                 frame.cpu.general.ecx,
                 frame.cpu.general.edx
             );
+            break;
+
+        case 12:
+            *((struct CMOSTimeRTC*) frame.cpu.general.ebx) = cmos_get_current_driver_data();
             break;
     }
 }
