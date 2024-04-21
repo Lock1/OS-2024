@@ -98,7 +98,7 @@ void main_interrupt_handler(struct InterruptFrame frame) {
                 .eip                         = frame.int_stack.eip,
                 .page_directory_virtual_addr = paging_get_current_page_directory_addr(),
             };
-            scheduler_save_context_to_current_pcb(ctx);
+            scheduler_save_context_to_current_running_pcb(ctx);
             scheduler_switch_to_next_process();
             break;
         }

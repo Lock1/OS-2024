@@ -24,19 +24,21 @@ static uint32_t process_generate_new_pid() {
     return process_manager_state.available_pid++;
 }
 
-// Assuming process_manager_state.active_process_count is properly updated
 static int32_t process_list_get_inactive_index() {
     if (process_manager_state.active_process_count >= PROCESS_COUNT_MAX)
         return -1;
-    for (int32_t i = 0; i < PROCESS_COUNT_MAX; ++i)
+    for (uint32_t i = 0; i < PROCESS_COUNT_MAX; ++i)
         if (_process_list[i].metadata.state == PROCESS_STOPPED)
             return i;
     return -1;
 }
 
-// uint32_t process_destroy(uint32_t pid) {
-//     process_manager_state.available_pid--;
-// }
+struct ProcessControlBlock* process_get_current_running_pcb_pointer(void) {
+    for (uint32_t i = 0; i < PROCESS_COUNT_MAX; ++i)
+        if (_process_list[i].metadata.state == PROCESS_RUNNING)
+            return &_process_list[i];
+    return NULL;
+}
 
 
 int32_t process_create_user_process(struct FAT32DriverRequest request) {
@@ -121,4 +123,17 @@ int32_t process_create_user_process(struct FAT32DriverRequest request) {
 
 exit_cleanup:
     return retcode;
+}
+
+bool process_destroy(uint32_t pid) {
+    for (uint32_t i = 0; i < PROCESS_COUNT_MAX; ++i) {
+        if (_process_list[i].metadata.pid == pid) {
+            // TODO: Release paging & PCB
+            // TODO: SIGTERM + syscall_exit()
+            process_manager_state.available_pid--;
+            process_manager_state.active_process_count--;
+            return true;
+        }
+    }
+    return false;
 }

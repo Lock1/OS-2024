@@ -6,6 +6,7 @@
 #include <stddef.h>
 
 #include "header/cpu/interrupt.h"
+#include "header/memory/paging.h"
 #include "header/filesystem/fat32.h"
 
 #define PROCESS_NAME_LENGTH_MAX          32
@@ -39,16 +40,24 @@
 
 
 
+
+/**
+ * Process state for PCB. 
+ * It's guaranteed *at most* 1 running process exist at any time
+ */
 typedef enum PROCESS_STATE {
-    PROCESS_STOPPED  = 0,
-    PROCESS_RUNNNING = 1,
-    PROCESS_WAITING  = 2,
+    PROCESS_STOPPED = 0,
+    PROCESS_RUNNING = 1,
+    PROCESS_WAITING = 2,
 } PROCESS_STATE;
 
 /**
- * Contain information needed to be able to get interrupted and resumed later
+ * Contain information needed for task to be able to get interrupted and resumed later
  * 
- * @param page_directory_addr CPU register CR3, containing pointer to active page directory
+ * @param cpu                         All CPU register state
+ * @param eip                         CPU instruction counter to resume execution
+ * @param eflags                      Flag register to load before resuming the execution
+ * @param page_directory_virtual_addr CPU register CR3, containing pointer to active page directory
  */
 struct Context {
     struct CPURegister   cpu;
@@ -57,13 +66,19 @@ struct Context {
     struct PageDirectory *page_directory_virtual_addr;
 };
 
+/**
+ * Structure data containing information about a process
+ * 
+ * @param metadata Process metadata, contain various information about process
+ * @param context  Process context used for context saving & switching
+ * @param memory   Memory used for the process
+ */
 struct ProcessControlBlock {
     struct {
         uint32_t      pid;
         char          name[PROCESS_NAME_LENGTH_MAX];
         PROCESS_STATE state;
     } metadata;
-
     struct Context context;
     struct {
         void     *virtual_addr_used[PROCESS_PAGE_FRAME_COUNT_MAX];
@@ -71,9 +86,41 @@ struct ProcessControlBlock {
     } memory;
 };
 
+
+
+
+
+/**
+ * All system process control block available to use
+ */
 extern struct ProcessControlBlock _process_list[PROCESS_COUNT_MAX];
 
-// Warning: This procedure assumes no reentrancy & any interrupt
+
+
+
+
+/**
+ * Get currently running process PCB pointer
+ * 
+ * @return Will return NULL if there's no running process
+ */
+struct ProcessControlBlock* process_get_current_running_pcb_pointer(void);
+
+/**
+ * Create new user process and setup the virtual address space.
+ * 
+ * @warning This procedure assumes no reentrancy in ISR
+ * @param request Appropriate read request for the executable
+ * @return Process creation return code
+ */
 int32_t process_create_user_process(struct FAT32DriverRequest request);
+
+/**
+ * Destroy process then release page directory and process control block
+ * 
+ * @param pid Process ID to delete
+ * @return True if process destruction success
+ */
+bool process_destroy(uint32_t pid);
 
 #endif

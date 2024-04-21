@@ -23,6 +23,8 @@ process_context_switch:
     mov  eax, [ecx+48]
     push eax ; Instruction counter register (eip)
 
+
+
     ; Setup all remaining general purpose (GP) register
     mov  edi, [ecx+0]
     mov  esi, [ecx+4]

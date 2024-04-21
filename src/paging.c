@@ -97,19 +97,18 @@ bool paging_free_user_page_frame(struct PageDirectory *page_dir, void *virtual_a
     return true;
 }
 
-#include "header/process/process.h"
 #include "header/kernel-entrypoint.h"
-#define PAGING_PROCESS_DIRECTORY_TABLE_MAX_COUNT 32
+#include "header/stdlib/string.h"
 
-__attribute__((aligned(0x1000))) static struct PageDirectory page_directory_list[PAGING_PROCESS_DIRECTORY_TABLE_MAX_COUNT] = {0};
+__attribute__((aligned(0x1000))) static struct PageDirectory page_directory_list[PAGING_DIRECTORY_TABLE_MAX_COUNT] = {0};
 static struct {
-    bool page_directory_used[PAGING_PROCESS_DIRECTORY_TABLE_MAX_COUNT];
+    bool page_directory_used[PAGING_DIRECTORY_TABLE_MAX_COUNT];
 } page_directory_manager = {
     .page_directory_used = {false},
 };
 
 struct PageDirectory* paging_create_new_page_directory(void) {
-    for (uint32_t i = 0; i < PAGING_PROCESS_DIRECTORY_TABLE_MAX_COUNT; ++i) {
+    for (uint32_t i = 0; i < PAGING_DIRECTORY_TABLE_MAX_COUNT; ++i) {
         if (!page_directory_manager.page_directory_used[i]) {
             page_directory_manager.page_directory_used[i] = true;
             struct PageDirectoryEntry kernel_entry = {
@@ -125,6 +124,17 @@ struct PageDirectory* paging_create_new_page_directory(void) {
     return NULL;
 }
 
+bool paging_free_page_directory(struct PageDirectory *page_dir) {
+    for (uint32_t i = 0; i < PAGING_DIRECTORY_TABLE_MAX_COUNT; ++i) {
+        if (&page_directory_list[i] == page_dir) {
+            page_directory_manager.page_directory_used[i] = false;
+            memset(page_dir, 0, sizeof(struct PageDirectory));
+            return true;
+        }
+    }
+    return false;
+}
+
 struct PageDirectory* paging_get_current_page_directory_addr(void) {
     uint32_t current_page_directory_phys_addr;
     __asm__ volatile("mov %%cr3, %0" : "=r"(current_page_directory_phys_addr): /* <Empty> */);
@@ -137,13 +147,5 @@ void paging_use_page_directory(struct PageDirectory *page_dir_virtual_addr) {
     // Additional layer of check & mistake safety net
     if ((uint32_t) page_dir_virtual_addr > (uint32_t) &_linker_kernel_virtual_base)
         physical_addr_page_dir -= (uint32_t) &_linker_kernel_virtual_base;
-
     __asm__  volatile("mov %0, %%cr3" : /* <Empty> */ : "r"(physical_addr_page_dir): "memory");
-    __attribute__((unused)) volatile int k = 0x1337;
-    for (uint32_t i = 0; i < PROCESS_PAGE_FRAME_COUNT_MAX; ++i) {
-        void *target_virtual_addr = (void*) (i*PAGE_FRAME_SIZE);
-        flush_single_tlb(target_virtual_addr);
-        flush_single_tlb((void*) ((uint32_t) &_linker_kernel_virtual_base - (uint32_t) target_virtual_addr));
-        flush_single_tlb((void*) ((uint32_t) &_linker_kernel_virtual_base - (uint32_t) target_virtual_addr));
-    }
 }
