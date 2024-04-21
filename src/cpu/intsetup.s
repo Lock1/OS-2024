@@ -64,6 +64,15 @@ segment_register_setup:
     ; [esp], [esp+4], [esp+8]
     ;   eip,   cs,    eflags
     ; Improper value will cause invalid return address & register
+
+    ; Warning:
+    ; Extra Safeguard. Because no reentrancy, fired PIT during ISR will clog the interrupt line.
+    ; Send pic_ack(IRQ_TIMER) before iret. Assuming IRQ_TIMER == 0x20 
+    push eax
+    mov eax, 0x20
+    out 0x20, eax
+    pop  eax
+
     iret
 
 
