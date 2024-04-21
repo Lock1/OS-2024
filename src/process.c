@@ -40,7 +40,6 @@ struct ProcessControlBlock* process_get_current_running_pcb_pointer(void) {
     return NULL;
 }
 
-
 int32_t process_create_user_process(struct FAT32DriverRequest request) {
     int32_t retcode = 0; 
     if (process_manager_state.active_process_count >= PROCESS_COUNT_MAX) {

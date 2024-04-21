@@ -7,7 +7,7 @@
  * Read all general purpose register values and set control register.
  * Resume the execution flow back to ctx.eip and ctx.eflags
  * 
- * @note Implemented in assembly
+ * @note          Implemented in assembly
  * @param context Target context to switch into
  */
 __attribute__((noreturn)) extern void process_context_switch(struct Context ctx);

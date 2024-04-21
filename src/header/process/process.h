@@ -109,9 +109,10 @@ struct ProcessControlBlock* process_get_current_running_pcb_pointer(void);
 /**
  * Create new user process and setup the virtual address space.
  * 
- * @warning This procedure assumes no reentrancy in ISR
+ * @note          This procedure assumes no reentrancy in ISR
+ * @warning       Assuming read(request) always success and request.buf point to load address
  * @param request Appropriate read request for the executable
- * @return Process creation return code
+ * @return        Process creation return code
  */
 int32_t process_create_user_process(struct FAT32DriverRequest request);
 
@@ -119,7 +120,7 @@ int32_t process_create_user_process(struct FAT32DriverRequest request);
  * Destroy process then release page directory and process control block
  * 
  * @param pid Process ID to delete
- * @return True if process destruction success
+ * @return    True if process destruction success
  */
 bool process_destroy(uint32_t pid);
 

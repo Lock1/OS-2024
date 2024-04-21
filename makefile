@@ -61,6 +61,22 @@ insert-shell: inserter user-shell
 	@echo Inserting shell into root directory...
 	@cd $(OUTPUT_FOLDER); ./inserter shell 2 $(DISK_NAME).bin
 
+user-clock:
+	@$(ASM) $(AFLAGS) $(SOURCE_FOLDER)/external/crt0.s -o crt0.o
+	@$(CC)  $(CFLAGS) -fno-pie $(SOURCE_FOLDER)/external/user-program/clock.c -o clock.o
+	@$(LIN) -T $(SOURCE_FOLDER)/external/user-linker.ld -melf_i386 --oformat=binary \
+		crt0.o clock.o -o $(OUTPUT_FOLDER)/clock
+	@$(LIN) -T $(SOURCE_FOLDER)/external/user-linker.ld -melf_i386 --oformat=elf32-i386 \
+		crt0.o clock.o -o $(OUTPUT_FOLDER)/clock_elf
+	@echo Linking object clock object files and generate ELF32 for debugging...
+	@echo Linking object clock object files and generate flat binary...
+	@size --target=binary $(OUTPUT_FOLDER)/clock
+	@rm -f *.o
+
+insert-clock: inserter user-clock
+	@echo Inserting clock into root directory...
+	@cd $(OUTPUT_FOLDER); ./inserter clock 2 $(DISK_NAME).bin
+
 iso: kernel
 	@mkdir -p $(OUTPUT_FOLDER)/iso/boot/grub
 	@cp $(OUTPUT_FOLDER)/kernel     $(OUTPUT_FOLDER)/iso/boot/

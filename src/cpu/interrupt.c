@@ -138,5 +138,29 @@ void syscall(struct InterruptFrame frame) {
         case 7: 
             keyboard_state_activate();
             break;
+
+        case 8:
+            process_create_user_process(
+                *((struct FAT32DriverRequest*) frame.cpu.general.ebx)
+            );
+            break;
+
+        case 9:
+            process_destroy(frame.cpu.general.ebx);
+            break;
+
+        case 10:
+            process_destroy(
+                process_get_current_running_pcb_pointer()->metadata.pid
+            );
+            break;
+
+        case 11:
+            puts_position(
+                (char*) frame.cpu.general.ebx,
+                frame.cpu.general.ecx,
+                frame.cpu.general.edx
+            );
+            break;
     }
 }

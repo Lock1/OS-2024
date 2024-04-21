@@ -39,3 +39,14 @@ void puts(char *buf, int32_t count, uint8_t color) {
     }
     framebuffer_set_cursor(row, col);
 }
+
+void puts_position(char *buf, uint8_t color, uint16_t location) {
+    uint8_t row = location / 80;
+    uint8_t col = location % 80;
+    int i = 0;
+    while (buf[i] != '\0') {
+        if (printable_char(buf[i]))
+            framebuffer_write(row, col++, buf[i], color, 0); // Only printables
+        i++;
+    }
+}

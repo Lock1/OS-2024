@@ -11,19 +11,20 @@ void syscall(uint32_t eax, uint32_t ebx, uint32_t ecx, uint32_t edx) {
     __asm__ volatile("int $0x30");
 }
 
-int main(void) {
-    struct ClusterBuffer      cl[2]   = {0};
+void init_clock(void) {
     struct FAT32DriverRequest request = {
-        .buf                   = &cl,
-        .name                  = "shell",
+        .buf                   = (uint8_t*) 0,
+        .name                  = "clock\0\0\0",
         .ext                   = "\0\0\0",
         .parent_cluster_number = ROOT_CLUSTER_NUMBER,
-        .buffer_size           = 2*CLUSTER_SIZE,
+        .buffer_size           = CLUSTER_SIZE,
     };
-    int32_t retcode;
-    syscall(0, (uint32_t) &request, (uint32_t) &retcode, 0);
-    if (retcode == 0)
-        syscall(6, (uint32_t) "owo\n", 4, 0xF);
+    syscall(8, (uint32_t) &request, 0, 0);
+    syscall(6, (uint32_t) "Clock running..\n", 17, 0xF);
+}
+
+int main(void) {
+    init_clock();
 
     char buf;
     syscall(7, 0, 0, 0);
