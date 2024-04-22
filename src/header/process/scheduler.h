@@ -30,6 +30,6 @@ void scheduler_save_context_to_current_running_pcb(struct Context ctx);
 /**
  * Trigger the scheduler algorithm and context switch to new process
  */
-void scheduler_switch_to_next_process(void);
+__attribute__((noreturn)) void scheduler_switch_to_next_process(void);
 
 #endif

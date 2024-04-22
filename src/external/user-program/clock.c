@@ -13,7 +13,7 @@ void syscall(uint32_t eax, uint32_t ebx, uint32_t ecx, uint32_t edx) {
     __asm__ volatile("int $0x30");
 }
 
-static inline void less_than_100_to_str(char *buf, int8_t x) {
+static void less_than_100_to_str(char *buf, int8_t x) {
     buf[0] = (x / 10) + '0';
     buf[1] = (x % 10) + '0';
 }

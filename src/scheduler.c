@@ -18,7 +18,7 @@ void scheduler_save_context_to_current_running_pcb(struct Context ctx) {
     running_pcb->context = ctx;
 }
 
-void scheduler_switch_to_next_process(void) {
+__attribute__((noreturn)) void scheduler_switch_to_next_process(void) {
     struct ProcessControlBlock *prev_running_pcb = process_get_current_running_pcb_pointer();
     struct ProcessControlBlock *next_running_pcb = NULL;
 
