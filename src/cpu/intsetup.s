@@ -24,6 +24,7 @@ call_generic_handler:
     pushad
 
     ; Need to manipulate several register first, will borrow eax as "temp variable"
+    pushf
     push eax
 
     mov eax, [esp+48]            ; Get ds register / segment selector for data
@@ -43,6 +44,7 @@ segment_register_setup:
     mov fs, ax
     mov gs, ax
     pop eax
+    popf
 
     ; Call the C function
     call main_interrupt_handler
