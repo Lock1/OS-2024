@@ -27,14 +27,14 @@ call_generic_handler:
     pushf
     push eax
 
-    mov eax, [esp+48]            ; Get ds register / segment selector for data
+    mov eax, [esp+52]            ; Get ds register / segment selector for data
     and eax, 0x3                 ; Check intra / inter using and operator (which set ZF flag)
     jz  segment_register_setup   ; We will skip the esp manipulation if it's intraprivilege
 
 interprivilege_interrupt:
     ; Interprivilege interrupt branch, get the esp from x86 interrupt stack
-    mov eax, [esp+72] 
-    mov [esp+16], eax
+    mov eax, [esp+76] 
+    mov [esp+20], eax
 
 segment_register_setup:
     ; Set segment registers to kernel_code before handling interrupt
@@ -46,6 +46,8 @@ segment_register_setup:
     pop eax
     popf
 
+    ; Use the current esp as base stack frame, this is only for main_interrupt_handler()
+    mov  ebp, esp 
     ; Call the C function
     call main_interrupt_handler
 
@@ -69,7 +71,7 @@ segment_register_setup:
 
     ; Warning:
     ; Extra Safeguard. Because of no reentrancy, 
-    ; Fired PIT during ISR will clog the interrupt line
+    ; Fired PIT during ISR can clog the interrupt line (this assuming the PIC will still send the interrupt when interrupt flag / IF is off, I have no clue whether that's the case or not)
     ; Send pic_ack(IRQ_TIMER) before iret. Assuming IRQ_TIMER == 0x20 
     push eax
     mov  eax, 0x20
