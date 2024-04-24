@@ -19,8 +19,10 @@ void init_clock(void) {
         .parent_cluster_number = ROOT_CLUSTER_NUMBER,
         .buffer_size           = CLUSTER_SIZE,
     };
-    syscall(8, (uint32_t) &request, 0, 0);
-    syscall(6, (uint32_t) "Clock running..\n", 17, 0xF);
+    int retcode = 0;
+    syscall(8, (uint32_t) &request, (uint32_t) &retcode, 0);
+    if (retcode == 0)
+        syscall(6, (uint32_t) "Clock running..\n", 17, 0xF);
 }
 
 int main(void) {

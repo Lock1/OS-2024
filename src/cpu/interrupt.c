@@ -142,7 +142,7 @@ void syscall(struct InterruptFrame frame) {
             break;
 
         case 8:
-            process_create_user_process(
+            *((uint32_t*) frame.cpu.general.ecx) = process_create_user_process(
                 *((struct FAT32DriverRequest*) frame.cpu.general.ebx)
             );
             break;

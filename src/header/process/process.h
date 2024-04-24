@@ -38,7 +38,12 @@
 #define CPU_EFLAGS_FLAG_AES_SCHEDULE_LOAD  0x40000000
 #define CPU_EFLAGS_FLAG_ALTER_INSTRUCTION  0x80000000
 
-
+// Return code constant for process_create_user_process()
+#define PROCESS_CREATE_SUCCESS                   0
+#define PROCESS_CREATE_FAIL_MAX_PROCESS_EXCEEDED 1
+#define PROCESS_CREATE_FAIL_ENTRYPOINT_INVALID   2
+#define PROCESS_CREATE_FAIL_NOT_ENOUGH_MEMORY    3
+#define PROCESS_CREATE_FAIL_FS_READ_FAILURE      4
 
 
 /**
@@ -108,6 +113,7 @@ struct ProcessControlBlock* process_get_current_running_pcb_pointer(void);
 
 /**
  * Create new user process and setup the virtual address space.
+ * All available return code is defined with macro "PROCESS_CREATE_*"
  * 
  * @note          This procedure assumes no reentrancy in ISR
  * @warning       Assuming read(request) always success and request.buf point to load address
