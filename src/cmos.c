@@ -15,7 +15,7 @@
 
 static struct CMOSTimeRTC cached_cmos_value = {0};
 
-#define CMOS_STATUS_REGISTER_B 0x0B
+#define CMOS_STATUS_REGISTER_B                    0xB
 #define CMOS_STATUS_REGISTER_B_24_HR_MODE         0x2
 #define CMOS_STATUS_REGISTER_B_BINARY_ACCESS_MODE 0x4
 static void cmos_initialize() {
@@ -27,7 +27,7 @@ static void cmos_initialize() {
     out(CMOS_DATA_PIO, register_b_value);
 }
 
-#define CMOS_STATUS_REGISTER_A 0x0A
+#define CMOS_STATUS_REGISTER_A 0xA
 static bool cmos_check_update() {
     out(CMOS_COMMAND_PIO, CMOS_STATUS_REGISTER_A);
     return in(CMOS_DATA_PIO) & 0x80;
