@@ -69,15 +69,6 @@ segment_register_setup:
     ;   eip,   cs,    eflags
     ; Improper value will cause invalid return address & register
 
-    ; Warning:
-    ; Extra Safeguard. Because of no reentrancy, 
-    ; Fired PIT during ISR can clog the interrupt line (this assuming the PIC will still send the interrupt when interrupt flag / IF is off, I have no clue whether that's the case or not)
-    ; Send pic_ack(IRQ_TIMER) before iret. Assuming IRQ_TIMER == 0x20 
-    push eax
-    mov  eax, 0x20
-    out  0x20, eax
-    pop  eax
-
     iret
 
 
