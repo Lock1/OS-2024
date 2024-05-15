@@ -21,4 +21,13 @@ void putchar(char c, uint8_t color);
  */
 void puts(char *buf, int32_t count, uint8_t color);
 
+/**
+ * Quick clone of puts() for writing at certain position. Will not move the cursor
+ * 
+ * @param buf      Pointer to null-terminated string buffer
+ * @param color    Text foreground color
+ * @param location Position to write. Row = loc/80. Col = loc%80.
+ */
+void puts_position(char *buf, uint8_t color, uint16_t location);
+
 #endif

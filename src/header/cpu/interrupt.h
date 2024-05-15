@@ -86,8 +86,8 @@ struct CPURegister {
         uint32_t esi;
     } __attribute__((packed)) index;
     struct {
-        uint32_t esp;
         uint32_t ebp;
+        uint32_t esp;
     } __attribute__((packed)) stack;
     struct {
         uint32_t ebx;
@@ -141,6 +141,9 @@ struct InterruptFrame {
 
 // Activate PIC mask for keyboard only
 void activate_keyboard_interrupt(void);
+
+// Activate PIC mask for timer only
+void activate_timer_interrupt(void);
 
 // I/O port wait, around 1-4 microsecond, for I/O synchronization purpose
 void io_wait(void);
